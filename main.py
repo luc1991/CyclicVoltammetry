@@ -10,34 +10,43 @@ P = numpy.zeros((n, 1))
 
 k1 = 1
 k2 = 1
-k3 = 1
+k3 = 1 
 
 for i in range(0, n):
     Ox[i] = 100
     S[i] = 100
 
 E = 3
-dt = 0.0001
-D = 0.0001
-for i in range(0, 20000):
-    if (i < 5000 or (i > 10000 and i < 15000)):
-        E = E - (6. / 5000)
+dt = 0.001
+D = 0.001
+E0 = 0
+iR = 0.01
+
+lk = 0
+
+for i in range(0, 8000):
+    lk = lk + 1
+    if (lk < 500):
+        E = E - (6. / 500)
     else:
-        E = E + (6. / 5000)
+        E = E + (6. / 500)
+    if (lk >= 1000):
+        lk = 0
+    print(lk)
     #print(E)
     new_ox = numpy.array(Ox)
     new_red = numpy.array(Red)
     new_s = numpy.array(S)
     new_p = numpy.array(P)
 
-    p = numpy.exp(E)
+    p = numpy.exp(E - E0)
     q = Ox[0] + Red[0]
     new_ox[0] = q - (q / (p + 1))
     new_red[0] = q / (p+1)
     I = Red[0] - new_red[0]
 
-    
-
+    # Then contribution from iR drop. V = IR, I = V/R
+    I = I + E * iR
     # And now change other things
     #
     # Diffusion;
@@ -85,7 +94,7 @@ for i in range(0, 20000):
     P = numpy.array(new_p)
 
     print("%f, %f, %f, %f, %f, %f" % (I, E, Ox[0], Red[0], S[0], P[0]))
-    if (i % 1000 == 0):
+    if (i % 100 == 0):
         t = numpy.arange(0, n )
         plt.plot(t, Ox, 'r', t, Red, 'b')
         plt.ylim((0, 100))
